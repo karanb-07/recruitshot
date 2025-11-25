@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function UploadPage() {
+function UploadContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const packageType = searchParams.get('package') || 'standard'
@@ -253,5 +253,13 @@ export default function UploadPage() {
       {/* Stripe Script */}
       <script src="https://js.stripe.com/v3/"></script>
     </div>
+  )
+}
+
+export default function UploadPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <UploadContent />
+    </Suspense>
   )
 }
