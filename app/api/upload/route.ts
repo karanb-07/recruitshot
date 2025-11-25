@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import path from 'path'
+import { put } from '@vercel/blob'
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,29 +14,23 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Create upload directory
-    const uploadDir = path.join(process.cwd(), 'uploads', sessionId)
-    await mkdir(uploadDir, { recursive: true })
-
-    // Save all photos
-    const savedFiles = []
+    const uploadedUrls = []
     for (let i = 0; i < photos.length; i++) {
       const photo = photos[i]
-      const bytes = await photo.arrayBuffer()
-      const buffer = Buffer.from(bytes)
-
-      const filename = `photo_${i + 1}_${Date.now()}.${photo.name.split('.').pop()}`
-      const filepath = path.join(uploadDir, filename)
+      const filename = `${sessionId}/photo_${i + 1}.${photo.name.split('.').pop()}`
       
-      await writeFile(filepath, buffer)
-      savedFiles.push(filename)
+      const blob = await put(filename, photo, {
+        access: 'public',
+      })
+      
+      uploadedUrls.push(blob.url)
     }
 
-    console.log(`Saved ${savedFiles.length} photos for session ${sessionId}`)
+    console.log(`Uploaded ${uploadedUrls.length} photos to Blob`)
 
     return NextResponse.json({ 
       success: true,
-      files: savedFiles,
+      urls: uploadedUrls,
       sessionId 
     })
   } catch (error: any) {
