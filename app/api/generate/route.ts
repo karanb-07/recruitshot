@@ -104,10 +104,18 @@ export async function POST(req: NextRequest) {
     })
 
     console.log('Astria HTTP status:', tuneResponse.status)
-    console.log('Astria status text:', tuneResponse.statusText)
 
-    const tuneData = await tuneResponse.json()
-    console.log('Full Astria response:', tuneData)
+    const responseText = await tuneResponse.text()
+    console.log('Astria raw response:', responseText)
+
+    let tuneData
+    try {
+      tuneData = JSON.parse(responseText)
+    } catch {
+      tuneData = { error: responseText }
+    }
+
+    console.log('Astria parsed response:', tuneData)
     
     if (!tuneResponse.ok) {
       throw new Error(`Astria API error: ${JSON.stringify(tuneData)}`)
