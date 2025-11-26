@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
         face_crop: true,
         preset: "flux-lora-portrait",
         image_urls: imageUrls.slice(0, Math.min(photoCount, 10)),
+        callback: `${process.env.NEXT_PUBLIC_SITE_URL}/api/generation-complete?email=${encodeURIComponent(email)}`,  // ← Add email
       }
     }
 
