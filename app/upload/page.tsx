@@ -54,14 +54,14 @@ function UploadContent() {
       alert('Please upload at least 5 photos')
       return
     }
-
+  
     if (!email || !email.includes('@')) {
       alert('Please enter a valid email address')
       return
     }
-
+  
     setLoading(true)
-
+  
     try {
       // Create Stripe checkout session
       const response = await fetch('/api/create-checkout', {
@@ -73,19 +73,23 @@ function UploadContent() {
           photoCount: files.length
         })
       })
-
-      const { sessionId, uploadUrl } = await response.json()
-
-      // Upload files
-      const formData = new FormData()
-      formData.append('sessionId', sessionId)
-      files.forEach(file => formData.append('photos', file))
-
-      await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      })
-
+  
+      const { sessionId } = await response.json()
+  
+      // Upload files ONE AT A TIME
+      for (let i = 0; i < files.length; i++) {
+        const formData = new FormData()
+        formData.append('sessionId', sessionId)
+        formData.append('photos', files[i])
+  
+        await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        })
+        
+        console.log(`Uploaded ${i + 1}/${files.length}`)
+      }
+  
       // Redirect to Stripe checkout
       const stripe = await (window as any).Stripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
       await stripe.redirectToCheckout({ sessionId })
