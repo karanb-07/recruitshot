@@ -1,8 +1,7 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import imageCompression from 'browser-image-compression'
 
 function UploadContent() {
   const router = useRouter()
@@ -14,14 +13,38 @@ function UploadContent() {
   const [loading, setLoading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
 
+  // Load compression library from CDN
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.src = 'https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js'
+    script.async = true
+    document.body.appendChild(script)
+    
+    return () => {
+      if (document.body.contains(script)) {
+        document.body.removeChild(script)
+      }
+    }
+  }, [])
+
   const compressImage = async (file: File): Promise<File> => {
+    // @ts-ignore
+    const imageCompression = window.imageCompression
+    
+    if (!imageCompression) {
+      console.error('Compression library not loaded, using original file')
+      return file
+    }
+
     const options = {
       maxSizeMB: 0.5,
       maxWidthOrHeight: 1024,
       useWebWorker: true
     }
     try {
-      return await imageCompression(file, options)
+      const compressed = await imageCompression(file, options)
+      console.log(`Compressed ${file.name} from ${(file.size / 1024).toFixed(0)}KB to ${(compressed.size / 1024).toFixed(0)}KB`)
+      return compressed
     } catch (error) {
       console.error('Compression error:', error)
       return file
