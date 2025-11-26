@@ -15,13 +15,16 @@ export async function POST(req: NextRequest) {
 
     // Step 1: Upload training images to Astria
     // Step 1: Get image URLs from Blob storage
-const { list } = await import('@vercel/blob')
+    const { list } = await import('@vercel/blob')
 
-const { blobs } = await list({
-  prefix: sessionId + '/',
-})
-
-const imageUrls = blobs.map(blob => blob.url)
+    const { blobs } = await list({
+      prefix: sessionId,
+    })
+    
+    const imageUrls = blobs.map(blob => blob.url)
+    
+    console.log('Blobs found:', blobs.length)
+    console.log('Image URLs:', imageUrls)
 
 console.log('Images from Blob:', imageUrls.length)
 console.log('First URL:', imageUrls[0])
