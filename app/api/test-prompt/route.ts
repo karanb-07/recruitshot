@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      text: "ohwx man, professional business headshot, wearing suit and tie, office background, corporate style, high quality, detailed, 8k",
+      text: "ohwx man, linkedin profile photo, professional clothing, neutral background, friendly, smiling, high quality, 8k",
       num_images: 2,
       super_resolution: true,
       inpaint_faces: true,
