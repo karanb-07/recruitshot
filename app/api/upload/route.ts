@@ -34,6 +34,8 @@ export async function POST(req: NextRequest) {
       const result = await cloudinary.uploader.upload(dataURI, {
         folder: `headshots/${sessionId}`,
         resource_type: 'image',
+        format: 'jpg',  // ← Force convert to JPEG
+        quality: 'auto',
       })
       
       uploadedUrls.push(result.secure_url)
