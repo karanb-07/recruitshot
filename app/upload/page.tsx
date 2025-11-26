@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useState, useEffect } from 'react'
+import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 function UploadContent() {
@@ -13,42 +13,46 @@ function UploadContent() {
   const [loading, setLoading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
 
-  // Load compression library from CDN
-  useEffect(() => {
-    const script = document.createElement('script')
-    script.src = 'https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js'
-    script.async = true
-    document.body.appendChild(script)
-    
-    return () => {
-      if (document.body.contains(script)) {
-        document.body.removeChild(script)
-      }
-    }
-  }, [])
-
   const compressImage = async (file: File): Promise<File> => {
-    // @ts-ignore
-    const imageCompression = window.imageCompression
-    
-    if (!imageCompression) {
-      console.error('Compression library not loaded, using original file')
-      return file
-    }
-
-    const options = {
-      maxSizeMB: 0.5,
-      maxWidthOrHeight: 1024,
-      useWebWorker: true
-    }
-    try {
-      const compressed = await imageCompression(file, options)
-      console.log(`Compressed ${file.name} from ${(file.size / 1024).toFixed(0)}KB to ${(compressed.size / 1024).toFixed(0)}KB`)
-      return compressed
-    } catch (error) {
-      console.error('Compression error:', error)
-      return file
-    }
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const ctx = canvas.getContext('2d')!
+          
+          // Resize to max 1024x1024
+          let width = img.width
+          let height = img.height
+          const maxSize = 1024
+          
+          if (width > height && width > maxSize) {
+            height = (height * maxSize) / width
+            width = maxSize
+          } else if (height > maxSize) {
+            width = (width * maxSize) / height
+            height = maxSize
+          }
+          
+          canvas.width = width
+          canvas.height = height
+          ctx.drawImage(img, 0, 0, width, height)
+          
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const compressed = new File([blob], file.name, { type: 'image/jpeg' })
+              console.log(`Compressed ${file.name} from ${(file.size / 1024).toFixed(0)}KB to ${(compressed.size / 1024).toFixed(0)}KB`)
+              resolve(compressed)
+            } else {
+              resolve(file)
+            }
+          }, 'image/jpeg', 0.8)
+        }
+        img.src = e.target?.result as string
+      }
+      reader.readAsDataURL(file)
+    })
   }
 
   const handleDrag = (e: React.DragEvent) => {
