@@ -35,13 +35,15 @@ export async function POST(req: NextRequest) {
 
     // Step 2: Create fine-tuning job on Astria
     // Step 2: Create fine-tuning job on Astria
-const payload = {
-  title: `Headshot ${Date.now()}`,
-  name: "man",
-  branch: "sd15",
-  image_urls: imageUrls.slice(0, Math.min(photoCount, 10)),
-  callback_url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/generation-complete`,
-}
+    const payload = {
+      tune: {  // ← Add this wrapper!
+        title: `Headshot ${Date.now()}`,
+        name: "man",
+        branch: "sd15",
+        image_urls: imageUrls.slice(0, Math.min(photoCount, 10)),
+        callback_url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/generation-complete`,
+      }
+    }
 
 console.log('Sending to Astria:', JSON.stringify(payload, null, 2))
 
