@@ -44,6 +44,7 @@ export async function POST(req: NextRequest) {
         model_type: "lora",
         steps: 300,
         face_crop: true,
+        preset: "flux-lora-portrait",
         image_urls: imageUrls.slice(0, Math.min(photoCount, 10)),
         callback: `https://recruitshot.vercel.app/api/generation-complete?email=${encodeURIComponent(email)}`,
       }
