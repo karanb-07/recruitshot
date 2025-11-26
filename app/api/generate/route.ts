@@ -15,13 +15,48 @@ export async function POST(req: NextRequest) {
 
     // Step 1: Upload training images to Astria
     // Step 1: Get image URLs from Blob storage
-    const { list } = await import('@vercel/blob')
+    // Step 1: Get images from Blob
+const { list } = await import('@vercel/blob')
 
-    const { blobs } = await list({
-      prefix: sessionId,
-    })
-    
-    const imageUrls = blobs.map(blob => blob.url)
+const { blobs } = await list({
+  prefix: sessionId,
+})
+
+console.log('Found blobs:', blobs.length)
+
+// Step 2: Download from Blob and upload to Astria
+const astriaImageUrls = []
+
+for (let i = 0; i < blobs.length; i++) {
+  const blob = blobs[i]
+  
+  // Download from Blob
+  const imageResponse = await fetch(blob.url)
+  const imageBuffer = await imageResponse.arrayBuffer()
+  
+  // Upload to Astria
+  const formData = new FormData()
+  formData.append('image', new Blob([imageBuffer], { type: 'image/jpeg' }), `photo_${i + 1}.jpg`)
+  
+  const uploadResponse = await fetch('https://api.astria.ai/images', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${ASTRIA_API_KEY}`,
+    },
+    body: formData
+  })
+  
+  const uploadData = await uploadResponse.json()
+  console.log('Astria upload response:', uploadData)
+  
+  if (uploadData.url) {
+    astriaImageUrls.push(uploadData.url)
+  }
+}
+
+console.log('Astria image URLs:', astriaImageUrls)
+
+const imageUrls = astriaImageUrls
     
     console.log('Blobs found:', blobs.length)
     console.log('Image URLs:', imageUrls)
