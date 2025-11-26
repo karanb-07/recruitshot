@@ -20,9 +20,10 @@ export async function POST(req: NextRequest) {
     console.log('Generation complete callback for:', email)
     console.log('Callback data:', JSON.stringify(data, null, 2))
 
-    // Extract generated image URLs
-    // Astria sends different formats - check what structure you get
-    const images = data.images || []
+    // Extract generated image URLs from correct location
+    const images = data.prompt?.images || data.images || []
+    
+    console.log('Extracted images:', images)
     
     if (images.length === 0) {
       console.log('No images in callback')
@@ -31,10 +32,10 @@ export async function POST(req: NextRequest) {
 
     // Create HTML with download links
     const imageHTML = images
-      .map((img: any, index: number) => `
+      .map((imgUrl: string, index: number) => `
         <div style="margin: 20px 0;">
-          <img src="${img.url || img}" style="max-width: 400px; border-radius: 8px; display: block; margin-bottom: 10px;" />
-          <a href="${img.url || img}" download style="background: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
+          <img src="${imgUrl}" style="max-width: 400px; border-radius: 8px; display: block; margin-bottom: 10px;" />
+          <a href="${imgUrl}" download style="background: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
             Download Headshot ${index + 1}
           </a>
         </div>
