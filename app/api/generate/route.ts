@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
-import path from 'path'
-import fs from 'fs/promises'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -16,25 +14,17 @@ export async function POST(req: NextRequest) {
     console.log('Starting generation for:', email, packageType)
 
     // Step 1: Upload training images to Astria
-    const uploadDir = path.join(process.cwd(), 'uploads', sessionId)
-    const files = await fs.readdir(uploadDir)
-    
-    console.log('Files found:', files)
-    console.log('Files count:', files.length)
-    
-    const imageUrls = []
-    for (const file of files) {
-      const filePath = path.join(uploadDir, file)
-      const imageBuffer = await fs.readFile(filePath)
-      const base64Image = imageBuffer.toString('base64')
-      
-      // In production, you'd upload to S3/CDN and use public URLs
-      // For now, we'll use Astria's upload endpoint
-      imageUrls.push(`data:image/jpeg;base64,${base64Image}`)
-    }
+    // Step 1: Get image URLs from Blob storage
+const { list } = await import('@vercel/blob')
 
-    console.log('ImageUrls created:', imageUrls.length)
-    console.log('First image preview:', imageUrls[0]?.substring(0, 100))
+const { blobs } = await list({
+  prefix: sessionId + '/',
+})
+
+const imageUrls = blobs.map(blob => blob.url)
+
+console.log('Images from Blob:', imageUrls.length)
+console.log('First URL:', imageUrls[0])
 
     // Step 2: Create fine-tuning job on Astria
     const tuneResponse = await fetch(ASTRIA_API_URL, {
