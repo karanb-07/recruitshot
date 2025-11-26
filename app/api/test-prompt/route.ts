@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 const ASTRIA_API_KEY = process.env.ASTRIA_API_KEY!
 
 export async function GET(req: NextRequest) {
-  const tuneId = "3661169"  // ← Your good tune ID
+  const tuneId = "3661252"  // ← Your good tune ID
   
   const response = await fetch(`https://api.astria.ai/tunes/${tuneId}/prompts`, {
     method: 'POST',
