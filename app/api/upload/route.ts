@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { put } from '@vercel/blob'
+import { v2 as cloudinary } from 'cloudinary'
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,20 +22,23 @@ export async function POST(req: NextRequest) {
     }
 
     const uploadedUrls = []
+    
     for (const photo of photos) {
-      // Force .jpg extension
-      const filename = `${sessionId}/${Date.now()}.jpg`
+      // Convert File to Buffer
+      const arrayBuffer = await photo.arrayBuffer()
+      const buffer = Buffer.from(arrayBuffer)
+      const base64 = buffer.toString('base64')
+      const dataURI = `data:${photo.type};base64,${base64}`
       
-      const blob = await put(filename, photo, {
-        access: 'public',
-        contentType: 'image/jpeg',
-        cacheControlMaxAge: 31536000,
+      // Upload to Cloudinary
+      const result = await cloudinary.uploader.upload(dataURI, {
+        folder: `headshots/${sessionId}`,
+        resource_type: 'image',
       })
       
-      uploadedUrls.push(blob.url)
+      uploadedUrls.push(result.secure_url)
+      console.log('Uploaded to Cloudinary:', result.secure_url)
     }
-
-    console.log(`Uploaded ${uploadedUrls.length} photos`)
 
     return NextResponse.json({ 
       success: true,
