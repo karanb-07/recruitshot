@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { put } from '@vercel/blob'
-import sharp from 'sharp'
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,26 +15,11 @@ export async function POST(req: NextRequest) {
     }
 
     const uploadedUrls = []
-    for (let i = 0; i < photos.length; i++) {
-      const photo = photos[i]
+    for (const photo of photos) {
+      const filename = `${sessionId}/${photo.name}`
       
-      // Convert File to Buffer
-      const arrayBuffer = await photo.arrayBuffer()
-      const buffer = Buffer.from(arrayBuffer)
-      
-      // Compress with Sharp
-      const compressed = await sharp(buffer)
-        .resize(1024, 1024, { fit: 'inside', withoutEnlargement: true })
-        .jpeg({ quality: 80 })
-        .toBuffer()
-      
-      console.log(`Compressed photo ${i + 1}: ${(buffer.length / 1024).toFixed(0)}KB → ${(compressed.length / 1024).toFixed(0)}KB`)
-      
-      // Upload to Blob
-      const filename = `${sessionId}/photo_${i + 1}.jpg`
-      const blob = await put(filename, compressed, {
+      const blob = await put(filename, photo, {
         access: 'public',
-        contentType: 'image/jpeg',
       })
       
       uploadedUrls.push(blob.url)
