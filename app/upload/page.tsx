@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import imageCompression from 'browser-image-compression'
 
 function UploadContent() {
   const router = useRouter()
@@ -13,6 +14,20 @@ function UploadContent() {
   const [loading, setLoading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
 
+  const compressImage = async (file: File): Promise<File> => {
+    const options = {
+      maxSizeMB: 0.5,
+      maxWidthOrHeight: 1024,
+      useWebWorker: true
+    }
+    try {
+      return await imageCompression(file, options)
+    } catch (error) {
+      console.error('Compression error:', error)
+      return file
+    }
+  }
+
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -23,25 +38,27 @@ function UploadContent() {
     }
   }
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const newFiles = Array.from(e.dataTransfer.files).filter(
+      const rawFiles = Array.from(e.dataTransfer.files).filter(
         file => file.type.startsWith('image/')
       )
-      setFiles(prev => [...prev, ...newFiles].slice(0, 10))
+      const compressed = await Promise.all(rawFiles.map(compressImage))
+      setFiles(prev => [...prev, ...compressed].slice(0, 10))
     }
   }
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files).filter(
+      const rawFiles = Array.from(e.target.files).filter(
         file => file.type.startsWith('image/')
       )
-      setFiles(prev => [...prev, ...newFiles].slice(0, 10))
+      const compressed = await Promise.all(rawFiles.map(compressImage))
+      setFiles(prev => [...prev, ...compressed].slice(0, 10))
     }
   }
 
@@ -153,7 +170,7 @@ function UploadContent() {
                 />
               </label>
               <p className="text-sm text-slate-500 mt-4">
-                Upload 5-10 photos (JPEG, PNG) • Max 5MB each
+                Upload 5-10 photos (JPEG, PNG) • Auto-compressed for best results
               </p>
             </div>
 
