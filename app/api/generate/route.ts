@@ -33,8 +33,7 @@ export async function POST(req: NextRequest) {
     console.log('Cloudinary images found:', imageUrls.length)
     console.log('Image URLs:', imageUrls)
 
-    // Step 2: Create fine-tuning job on Astria
-    // Step 2: Create fine-tuning job on Astria
+    // Step 2: Create fine-tuning job on Astria with prompts
     const payload = {
       tune: {
         title: `Headshot ${Date.now()}`,
@@ -47,7 +46,7 @@ export async function POST(req: NextRequest) {
         face_crop: true,
         preset: "flux-lora-portrait",
         image_urls: imageUrls.slice(0, Math.min(photoCount, 10)),
-        callback: `${process.env.NEXT_PUBLIC_SITE_URL}/api/generation-complete?email=${encodeURIComponent(email)}`,
+        callback: `https://recruitshot.vercel.app/api/generation-complete?email=${encodeURIComponent(email)}`,
         prompts_attributes: [
           {
             text: "ohwx man, professional business headshot, wearing suit and tie, office background, corporate style, high quality, detailed, 8k",
@@ -57,7 +56,7 @@ export async function POST(req: NextRequest) {
             inpaint_faces: true,
             face_correct: true,
             face_swap: true,
-            callback: `${process.env.NEXT_PUBLIC_SITE_URL}/api/generation-complete?email=${encodeURIComponent(email)}`,
+            callback: `https://recruitshot.vercel.app/api/generation-complete?email=${encodeURIComponent(email)}`,
           },
           {
             text: "ohwx man, professional headshot, business casual, modern office, natural lighting, high quality, 8k",
@@ -67,7 +66,7 @@ export async function POST(req: NextRequest) {
             inpaint_faces: true,
             face_correct: true,
             face_swap: true,
-            callback: `${process.env.NEXT_PUBLIC_SITE_URL}/api/generation-complete?email=${encodeURIComponent(email)}`,
+            callback: `https://recruitshot.vercel.app/api/generation-complete?email=${encodeURIComponent(email)}`,
           },
           {
             text: "ohwx man, executive portrait, formal attire, elegant office, professional, detailed, 8k",
@@ -77,7 +76,7 @@ export async function POST(req: NextRequest) {
             inpaint_faces: true,
             face_correct: true,
             face_swap: true,
-            callback: `${process.env.NEXT_PUBLIC_SITE_URL}/api/generation-complete?email=${encodeURIComponent(email)}`,
+            callback: `https://recruitshot.vercel.app/api/generation-complete?email=${encodeURIComponent(email)}`,
           },
           {
             text: "ohwx man, linkedin profile photo, professional clothing, neutral background, friendly, 8k",
@@ -87,66 +86,38 @@ export async function POST(req: NextRequest) {
             inpaint_faces: true,
             face_correct: true,
             face_swap: true,
-            callback: `${process.env.NEXT_PUBLIC_SITE_URL}/api/generation-complete?email=${encodeURIComponent(email)}`,
+            callback: `https://recruitshot.vercel.app/api/generation-complete?email=${encodeURIComponent(email)}`,
           },
         ],
       }
     }
 
-console.log('Sending to Astria:', JSON.stringify(payload, null, 2))
+    console.log('Sending to Astria:', JSON.stringify(payload, null, 2))
 
-const tuneResponse = await fetch(ASTRIA_API_URL, {
-  method: 'POST',
-  headers: {
-    'Authorization': `Bearer ${ASTRIA_API_KEY}`,
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(payload),
-})
+    const tuneResponse = await fetch(ASTRIA_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${ASTRIA_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    console.log('Astria HTTP status:', tuneResponse.status)
+    console.log('Astria status text:', tuneResponse.statusText)
 
     const tuneData = await tuneResponse.json()
     console.log('Full Astria response:', tuneData)
-    const tuneId = tuneData.id
     
+    if (!tuneResponse.ok) {
+      throw new Error(`Astria API error: ${JSON.stringify(tuneData)}`)
+    }
+    
+    const tuneId = tuneData.id
     console.log('Astria tune created:', tuneId)
 
-    // Step 3: Generate headshots using different prompts
+    // Step 3: Send confirmation email
     const numHeadshots = packageType === 'premium' ? 20 : 10
-    const prompts = [
-      'professional business headshot, suit and tie, office background, corporate, high quality',
-      'professional headshot, business casual, modern office, natural lighting',
-      'professional portrait, smart casual attire, contemporary workspace, confident',
-      'executive headshot, formal business attire, elegant office, professional',
-      'modern professional headshot, stylish outfit, urban background, creative',
-      'linkedin profile photo, professional clothing, neutral background, friendly',
-      'corporate headshot, blazer, studio lighting, clean background',
-      'professional photo, business attire, outdoor setting, natural light',
-    ]
-
-    const generations = []
-    for (let i = 0; i < Math.min(numHeadshots, prompts.length); i++) {
-      const genResponse = await fetch(`${ASTRIA_API_URL}/${tuneId}/prompts`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${ASTRIA_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          prompt: `${prompts[i]}, professional photography, 8k, detailed`,
-          negative_prompt: 'cartoon, anime, illustration, low quality, blurry, distorted',
-          num_images: packageType === 'premium' ? 3 : 2,
-          callback: {
-            url: `${process.env.NEXT_PUBLIC_SITE_URL}/api/generation-complete`,
-            method: 'POST'
-          }
-        }),
-      })
-
-      const genData = await genResponse.json()
-      generations.push(genData)
-    }
-
-    // Step 4: Send confirmation email
     await resend.emails.send({
       from: 'AI Headshots <onboarding@resend.dev>',
       to: email,
@@ -166,7 +137,6 @@ const tuneResponse = await fetch(ASTRIA_API_URL, {
     return NextResponse.json({ 
       success: true,
       tuneId,
-      generationCount: generations.length 
     })
   } catch (error: any) {
     console.error('Generation error:', error)
