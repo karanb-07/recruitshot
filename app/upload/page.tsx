@@ -13,48 +13,6 @@ function UploadContent() {
   const [loading, setLoading] = useState(false)
   const [dragActive, setDragActive] = useState(false)
 
-  const compressImage = async (file: File): Promise<File> => {
-    return new Promise((resolve) => {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const img = new Image()
-        img.onload = () => {
-          const canvas = document.createElement('canvas')
-          const ctx = canvas.getContext('2d')!
-          
-          // Resize to max 1024x1024
-          let width = img.width
-          let height = img.height
-          const maxSize = 1024
-          
-          if (width > height && width > maxSize) {
-            height = (height * maxSize) / width
-            width = maxSize
-          } else if (height > maxSize) {
-            width = (width * maxSize) / height
-            height = maxSize
-          }
-          
-          canvas.width = width
-          canvas.height = height
-          ctx.drawImage(img, 0, 0, width, height)
-          
-          canvas.toBlob((blob) => {
-            if (blob) {
-              const compressed = new File([blob], file.name, { type: 'image/jpeg' })
-              console.log(`Compressed ${file.name} from ${(file.size / 1024).toFixed(0)}KB to ${(compressed.size / 1024).toFixed(0)}KB`)
-              resolve(compressed)
-            } else {
-              resolve(file)
-            }
-          }, 'image/jpeg', 0.8)
-        }
-        img.src = e.target?.result as string
-      }
-      reader.readAsDataURL(file)
-    })
-  }
-
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -74,8 +32,7 @@ function UploadContent() {
       const rawFiles = Array.from(e.dataTransfer.files).filter(
         file => file.type.startsWith('image/')
       )
-      const compressed = await Promise.all(rawFiles.map(compressImage))
-      setFiles(prev => [...prev, ...compressed].slice(0, 10))
+      setFiles(prev => [...prev, ...rawFiles].slice(0, 10))
     }
   }
 
@@ -84,8 +41,7 @@ function UploadContent() {
       const rawFiles = Array.from(e.target.files).filter(
         file => file.type.startsWith('image/')
       )
-      const compressed = await Promise.all(rawFiles.map(compressImage))
-      setFiles(prev => [...prev, ...compressed].slice(0, 10))
+      setFiles(prev => [...prev, ...rawFiles].slice(0, 10))
     }
   }
 
@@ -197,7 +153,7 @@ function UploadContent() {
                 />
               </label>
               <p className="text-sm text-slate-500 mt-4">
-                Upload 5-10 photos (JPEG, PNG) • Auto-compressed for best results
+                Upload 5-10 photos (JPEG, PNG) • Max 5MB each
               </p>
             </div>
 
