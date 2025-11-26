@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { v2 as cloudinary } from 'cloudinary'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+
+// Cloudinary Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 // Astria API Configuration
 const ASTRIA_API_KEY = process.env.ASTRIA_API_KEY!
@@ -13,16 +21,16 @@ export async function POST(req: NextRequest) {
 
     console.log('Starting generation for:', email, packageType)
 
-    // Step 1: Get image URLs from Blob storage
-    const { list } = await import('@vercel/blob')
-
-    const { blobs } = await list({
-      prefix: sessionId,
+    // Step 1: Get image URLs from Cloudinary
+    const result = await cloudinary.api.resources({
+      type: 'upload',
+      prefix: `headshots/${sessionId}`,
+      max_results: 20,
     })
 
-    const imageUrls = blobs.map(blob => blob.url)
-
-    console.log('Blobs found:', blobs.length)
+    const imageUrls = result.resources.map((resource: any) => resource.secure_url)
+    
+    console.log('Cloudinary images found:', imageUrls.length)
     console.log('Image URLs:', imageUrls)
 
     // Step 2: Create fine-tuning job on Astria
