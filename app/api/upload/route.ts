@@ -16,16 +16,19 @@ export async function POST(req: NextRequest) {
 
     const uploadedUrls = []
     for (const photo of photos) {
-      const filename = `${sessionId}/${photo.name}`
+      // Force .jpg extension
+      const filename = `${sessionId}/${Date.now()}.jpg`
       
       const blob = await put(filename, photo, {
         access: 'public',
+        contentType: 'image/jpeg',
+        cacheControlMaxAge: 31536000,
       })
       
       uploadedUrls.push(blob.url)
     }
 
-    console.log(`Uploaded ${uploadedUrls.length} photos to Blob`)
+    console.log(`Uploaded ${uploadedUrls.length} photos`)
 
     return NextResponse.json({ 
       success: true,
