@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
     console.log('Image URLs:', imageUrls)
 
     // Step 2: Create fine-tuning job on Astria with prompts
+    /*
     const payload = {
       tune: {
         title: `Headshot ${Date.now()}`,
@@ -47,6 +48,52 @@ export async function POST(req: NextRequest) {
         preset: "flux-lora-portrait",
         image_urls: imageUrls.slice(0, Math.min(photoCount, 10)),
         callback: `https://recruitshot.vercel.app/api/generation-complete?email=${encodeURIComponent(email)}`,
+      }
+    }
+      */
+    const payload = {
+      tune: {
+        title: `Headshot ${Date.now()}`,
+        name: "man",
+        token: "ohwx",
+        branch: "flux1",
+        base_tune_id: 1504944,
+        model_type: "lora",
+        steps: 300,
+        face_crop: true,
+        preset: "flux-lora-portrait",
+        image_urls: imageUrls.slice(0, Math.min(photoCount, 10)),
+        callback: `https://recruitshot.vercel.app/api/generation-complete?email=${encodeURIComponent(email)}`,
+        prompts_attributes: [
+          {
+            text: "ohwx man, professional business headshot, wearing suit and tie, office background, corporate style, high quality, detailed, 8k",
+            num_images: 2,
+            super_resolution: true,
+            inpaint_faces: true,
+            callback: `https://recruitshot.vercel.app/api/generation-complete?email=${encodeURIComponent(email)}`,
+          },
+          {
+            text: "ohwx man, professional headshot, business casual, modern office, natural lighting, high quality, 8k",
+            num_images: 2,
+            super_resolution: true,
+            inpaint_faces: true,
+            callback: `https://recruitshot.vercel.app/api/generation-complete?email=${encodeURIComponent(email)}`,
+          },
+          {
+            text: "ohwx man, executive portrait, formal attire, elegant office, professional, detailed, 8k",
+            num_images: 2,
+            super_resolution: true,
+            inpaint_faces: true,
+            callback: `https://recruitshot.vercel.app/api/generation-complete?email=${encodeURIComponent(email)}`,
+          },
+          {
+            text: "ohwx man, linkedin profile photo, professional clothing, neutral background, friendly, 8k",
+            num_images: 2,
+            super_resolution: true,
+            inpaint_faces: true,
+            callback: `https://recruitshot.vercel.app/api/generation-complete?email=${encodeURIComponent(email)}`,
+          },
+        ],
       }
     }
 
