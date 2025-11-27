@@ -1,12 +1,10 @@
 'use client'
 
 import { Suspense, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 function UploadContent() {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const packageType = searchParams.get('package') || 'standard'
   
   const [files, setFiles] = useState<File[]>([])
   const [email, setEmail] = useState('')
@@ -68,7 +66,7 @@ function UploadContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          package: packageType,
+          package: 'standard',
           email: email,
           photoCount: files.length
         })
@@ -101,9 +99,6 @@ function UploadContent() {
     }
   }
 
-  const price = packageType === 'premium' ? 29 : 19
-  const photoCount = packageType === 'premium' ? '15-20' : '8-10'
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <div className="container mx-auto px-4 py-12">
@@ -121,9 +116,9 @@ function UploadContent() {
             <div className="mt-6 inline-block bg-blue-50 px-6 py-3 rounded-lg">
               <p className="text-sm text-slate-600">
                 <span className="font-semibold text-blue-600">
-                  {packageType.charAt(0).toUpperCase() + packageType.slice(1)} Package
+                  8 Professional Headshots
                 </span>
-                {' '}• {photoCount} headshots • ${price}
+                {' '}• $19
               </p>
             </div>
           </div>
@@ -157,7 +152,7 @@ function UploadContent() {
                 />
               </label>
               <p className="text-sm text-slate-500 mt-4">
-                Upload 5-10 photos (JPEG, PNG) • Max 5MB each
+                Upload 5-10 varied photos for best results
               </p>
             </div>
 
@@ -218,21 +213,24 @@ function UploadContent() {
             <ul className="space-y-2 text-sm text-slate-700">
               <li className="flex items-start gap-2">
                 <span className="text-green-600 mt-0.5">✓</span>
-                <span>Use photos with good lighting (natural light is best)</span>
+                <span>Use photos with good lighting and different angles</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-green-600 mt-0.5">✓</span>
-                <span>Include close-ups and shoulders-up shots</span>
+                <span>Include varied poses, expressions, and backgrounds</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-green-600 mt-0.5">✓</span>
-                <span>Show your face from different angles</span>
+                <span>High-quality, clear images work best</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-red-600 mt-0.5">✗</span>
-                <span>Avoid group photos, sunglasses, or heavily filtered images</span>
+                <span>Avoid all similar angles, group photos, or sunglasses</span>
               </li>
             </ul>
+            <p className="text-xs text-slate-500 mt-3 italic">
+  For best results, upload varied photos with different angles and lighting
+</p>
           </div>
 
           {/* Submit Button */}
@@ -244,12 +242,12 @@ function UploadContent() {
             {loading ? (
               'Processing...'
             ) : (
-              `Continue to Payment ($${price})`
+              'Continue to Payment ($19)'
             )}
           </button>
 
           <p className="text-center text-sm text-slate-500 mt-4">
-            Secure payment via Stripe • Money-back guarantee
+            Secure payment via Stripe
           </p>
         </div>
       </div>

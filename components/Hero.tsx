@@ -59,11 +59,11 @@ export default function Hero() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-green-600">✓</span>
-            <span>Money-back guarantee</span>
+            <span>Quality depends on photo input</span>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-green-600">✓</span>
-            <span>500+ happy customers</span>
+            <span>8 professional headshots</span>
           </div>
         </div>
       </div>
