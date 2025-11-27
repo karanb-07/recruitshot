@@ -8,11 +8,11 @@ const faqs = [
   },
   {
     q: "How long does it take?",
-    a: "Standard: 30-60 minutes. Premium: 20-30 minutes. You'll get an email as soon as they're ready."
+    a: "30-60 minutes. You'll get an email as soon as they're ready."
   },
   {
     q: "What if I don't like the results?",
-    a: "If you're not happy with at least 3 of your headshots, we'll give you a full refund within 48 hours. No questions asked."
+    a: "If you're not happy with your headshots, we will work with you to provide a fresh set of headshots, no questions asked."
   },
   {
     q: "What kind of photos should I upload?",
