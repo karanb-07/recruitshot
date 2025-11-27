@@ -29,10 +29,6 @@ const faqs = [
   {
     q: "Why is this so much cheaper than a photographer?",
     a: "AI makes it possible! A traditional photographer charges $200-500 for their time, equipment, and studio. We use AI to generate professional-quality headshots instantly."
-  },
-  {
-    q: "What styles do I get?",
-    a: "You'll get headshots in different professional styles: business formal (suit/blazer), business casual, modern professional, outdoor professional, and creative professional backgrounds."
   }
 ]
 
