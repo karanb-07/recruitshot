@@ -1,95 +1,45 @@
-# AI Headshot Generator - Boilerplate Code
+# RecruitShot - AI Headshot Generator
 
-This is the complete boilerplate code for the AI Headshot Generator project.
+Professional AI-generated headshots for college recruiting and professional profiles.
 
-## 🚀 Quick Start
+🔗 **Live Site:** [recruitshot.com](https://recruitshot.com)
 
-### 1. Install Dependencies
-```bash
-npm install
-```
+## Overview
 
-### 2. Set Up Environment Variables
-```bash
-# Copy the template
-cp .env.local.template .env.local
+RecruitShot is a full-stack SaaS application that generates professional headshots using AI, specifically designed for college students preparing for recruiting season.
 
-# Edit .env.local and add your API keys:
-# - Stripe keys (from https://stripe.com)
-# - Astria API key (from https://astria.ai)
-# - Resend API key (from https://resend.com)
-```
+## Tech Stack
 
-### 3. Run Development Server
-```bash
-npm run dev
-```
+- **Frontend:** Next.js 14, TypeScript, Tailwind CSS
+- **Backend:** Next.js API Routes, Node.js
+- **Payments:** Stripe API
+- **Image Processing:** Cloudinary (storage & optimization)
+- **AI:** Astria.ai API (model training & generation)
+- **Deployment:** Vercel
 
-Visit http://localhost:3000
+## Key Features
 
-## 📁 Project Structure
+- AI-powered professional headshot generation
+- Secure payment processing with Stripe
+- Optimized image storage and delivery
+- Responsive UI design
+- User-friendly upload flow
 
-```
-├── app/
-│   ├── page.tsx              # Landing page
-│   ├── layout.tsx            # Root layout
-│   ├── globals.css           # Global styles
-│   ├── upload/
-│   │   └── page.tsx          # Photo upload page
-│   ├── success/
-│   │   └── page.tsx          # Payment success page
-│   └── api/
-│       ├── create-checkout/  # Stripe checkout
-│       ├── webhook/          # Stripe webhook
-│       ├── upload/           # File upload
-│       └── generate/         # AI generation
-├── components/
-│   ├── Hero.tsx              # Hero section
-│   ├── HowItWorks.tsx        # How it works
-│   ├── Pricing.tsx           # Pricing cards
-│   └── FAQ.tsx               # FAQ accordion
-├── public/                   # Static assets
-├── .env.local.template       # Environment variables template
-└── package.json              # Dependencies
-```
+## Technical Challenges Solved
 
-## 🔑 Required API Keys
+- **Vercel Serverless Function Limits:** Implemented chunked image uploads to handle the 15MB body size limit on Vercel serverless functions
+- **Image Optimization:** Built efficient image processing pipeline using Cloudinary for fast delivery
+- **Payment Integration:** Implemented secure Stripe checkout flow with webhook handling
 
-You need accounts and API keys for:
-1. **Stripe** - Payment processing
-2. **Astria.ai** - AI headshot generation
-3. **Resend** - Email notifications
+## Metrics
 
-## 📚 Documentation
+- 27+ paying customers
+- Active production application
 
-See the included markdown files for:
-- `BUILD_GUIDE.md` - Detailed build instructions
-- `DEPLOYMENT_GUIDE.md` - How to deploy to Vercel
-- `14_DAY_CHECKLIST.md` - Day-by-day action plan
+## What I Learned
 
-## 💡 Next Steps
-
-1. Set up your API keys in `.env.local`
-2. Test locally with `npm run dev`
-3. Follow the 14-day checklist to launch
-
-## 🐛 Troubleshooting
-
-- **Module not found errors**: Run `npm install`
-- **Stripe errors**: Check your API keys in `.env.local`
-- **Upload not working**: Create an `uploads` folder in the root
-- **Email not sending**: Verify your Resend API key
-
-## 📖 Full Documentation
-
-Check the `_DOCUMENTATION` folder for:
-- Complete build guide
-- Revenue projections
-- Marketing playbook
-- Launch checklist
-
-## 🎯 Goal
-
-Launch this in 14 days and make $15K+ in 60 days!
-
-Good luck! 🚀
+- Full-stack application architecture with Next.js
+- Payment processing and webhook handling
+- Working with third-party AI APIs
+- Managing image uploads at scale
+- Deploying and maintaining production applications
